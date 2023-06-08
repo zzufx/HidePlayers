@@ -12,10 +12,15 @@ import java.util.List;
 
 @Mod(modid = HidePlayers.MOD_ID)
 public class HidePlayers {
+    public enum Mode {
+        WHITELIST,
+        BLACKLIST
+    }
     public static String prefix = "\u00a75HidePlayers \u00a7c- \u00a7r";
     public static final String MOD_ID = "HidePlayers";
     public static List<String> players = new ArrayList<>();
     public static boolean toggled = true;
+    public static Mode mode = Mode.WHITELIST;
 
     @Mod.EventHandler
     public void onInit(FMLInitializationEvent event) throws IOException {

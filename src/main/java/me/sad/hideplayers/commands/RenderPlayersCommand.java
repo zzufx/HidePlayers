@@ -43,7 +43,7 @@ public class RenderPlayersCommand extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/hideplayers (toggle/help/list/add/remove) [player]";
+        return "/hideplayers (toggle/help/list/add/remove/mode) [player/mode]";
     }
 
     @Override
@@ -54,7 +54,7 @@ public class RenderPlayersCommand extends CommandBase {
     @Override
     public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos) {
         if (args.length == 1) {
-            return getListOfStringsMatchingLastWord(args, "toggle", "help", "list", "add", "remove");
+            return getListOfStringsMatchingLastWord(args, "toggle", "help", "list", "add", "remove", "mode");
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("remove")) {
                 return getListOfStringsMatchingLastWord(args, HidePlayers.players);
@@ -117,6 +117,19 @@ public class RenderPlayersCommand extends CommandBase {
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
+                        }
+                    }
+                    break;
+                case "mode":
+                    if (args.length == 1) {
+                        sender.addChatMessage(new ChatComponentText(HidePlayers.prefix + "Current mode is \u00a7b" + HidePlayers.mode.name() + "\u00a7f!"));
+                    } else {
+                        try {
+                            HidePlayers.mode = HidePlayers.Mode.valueOf(args[1].toUpperCase());
+                            ConfigUtils.writeConfig();
+                            sender.addChatMessage(new ChatComponentText(HidePlayers.prefix + "Set mode to \u00a7b" + HidePlayers.mode.name() + "\u00a7f!"));
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
                     break;

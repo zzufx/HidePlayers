@@ -10,18 +10,26 @@ import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(RenderManager.class)
 public abstract class MixinRenderManager {
-    @Inject(at=@At("HEAD"), method = "shouldRender", cancellable = true)
-    public void shouldRender(Entity entityIn, ICamera camera, double camX, double camY, double camZ, CallbackInfoReturnable<Boolean> cir) {
+    @Shadow
+    public abstract <T extends Entity> Render<T> getEntityRenderObject(Entity entityIn);
+
+    @Overwrite
+    public boolean shouldRender(Entity entityIn, ICamera camera, double camX, double camY, double camZ) {
         if (entityIn instanceof EntityOtherPlayerMP) {
-            if (!HidePlayers.players.contains(entityIn.getName().toLowerCase()) && !HidePlayers.toggled) {
-                cir.setReturnValue(false);
+            if (HidePlayers.mode == HidePlayers.Mode.WHITELIST) {
+                if (!HidePlayers.players.contains(entityIn.getName().toLowerCase()) && !HidePlayers.toggled) {
+                    return false;
+                }
+            } else if (HidePlayers.mode == HidePlayers.Mode.BLACKLIST) {
+                if (HidePlayers.players.contains(entityIn.getName().toLowerCase()) && !HidePlayers.toggled) {
+                    return false;
+                }
             }
         }
+        Render<Entity> render = this.getEntityRenderObject(entityIn);
+        return render != null && render.shouldRender(entityIn, camera, camX, camY, camZ);
     }
 }
